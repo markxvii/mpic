@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% block head %}
-        <title>{% block title %}{% endblock %} - Albumy</title>
+        <title>{% block title %}{% endblock %} - mpic</title>
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
         {% block styles %}
             <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
@@ -28,10 +28,10 @@
 
             <div class="collapse navbar-collapse" id="navbarColor01">
                 <div class="navbar-nav mr-auto">
-                    {{ render_nav_item('main.index', 'Home') }}
-                    {{ render_nav_item('main.explore', 'Explore') }}
+                    {{ render_nav_item('main.index', '主页') }}
+                    {{ render_nav_item('main.explore', '探索') }}
                     <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search') }}">
-                        <input type="text" name="q" class="form-control mr-sm-1" placeholder="Photo, tag or user"
+                        <input type="text" name="q" class="form-control mr-sm-1" placeholder="图片，标签或者用户"
                                required>
                         <button class="btn btn-light my-2 my-sm-0" type="submit">
                             <span class="oi oi-magnifying-glass"></span>
@@ -57,32 +57,74 @@
                             <span class="caret"></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" role="menu">
-                            <h6 class="dropdown-header">Logged in as {{ current_user.username }}</h6>
+                            <h6 class="dropdown-header">当前用户： {{ current_user.username }}</h6>
                             <a class="dropdown-item" href="{{ url_for('user.index', username=current_user.username) }}">
-                                <span class="oi oi-person"></span> My Home
+                                <span class="oi oi-person"></span> 我的主页
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('user.edit_profile') }}">
-                                <span class="oi oi-cog"></span> Settings
+                                <span class="oi oi-cog"></span> 设置
                             </a>
                             {% if current_user.can('MODERATE') %}
                                 <a class="dropdown-item" href="{{ url_for('admin.index') }}">
-                                    <span class="oi oi-dashboard"></span> Dashboard
+                                    <span class="oi oi-dashboard"></span> 控制台
                                 </a>
                             {% endif %}
                             <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
-                                <span class="oi oi-power-standby"></span> Logout
+                                <span class="oi oi-power-standby"></span> 注销
                             </a>
                         </div>
                     </div>
                 {% else %}
-                    <a class="btn btn-outline-primary" href="{{ url_for('auth.login') }}">Login</a>&nbsp;&nbsp;
-                    <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Join Albumy</a>
+                    <a class="btn btn-outline-primary" href="{{ url_for('auth.login') }}">登录</a>&nbsp;&nbsp;
+                    <a class="btn btn-primary" href="{{ url_for('auth.register') }}">加入 Mpic！</a>
                 {% endif %}
                 </div>
             </div>
         </div>
     </nav>
 {% endblock navbar %}
+
+
+<main>
+    <div class="container">
+        {% for message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ message[0] }}">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message[1] }}
+            </div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+        {% block footer %}
+            <footer>
+                <p class="float-left">
+                    <small>Copyright &copy; Designed by Marc Yin, all rights reserved. -
+                        <a href="https://github.com/markxvii/mpic" title="Star me on GitHub">Github</a>
+                    </small>
+                </p>
+            </footer>
+        {% endblock %}
+    </div>
+</main>
+<div id="toast"></div>
+
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    {{ moment.include_moment(local_js=url_for('static', filename='js/moment-with-locales.min.js')) }}
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script type="text/javascript">
+        var csrf_token = "{{ csrf_token() }}";
+        {% if current_user.is_authenticated %}
+            var is_authenticated = true;
+        {% else %}
+            var is_authenticated = false;
+        {% endif %}
+    </script>
+{% endblock %}
+
+
 </body>
 </html>
