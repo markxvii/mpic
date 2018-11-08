@@ -109,3 +109,4 @@ def reset_password(token):
             flash('token验证有误，请重新尝试此操作。','danger')
             return redirect(url_for('.forget_password'))
     return render_template('auth/reset_password.html',form=form)
+
