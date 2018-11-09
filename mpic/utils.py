@@ -74,15 +74,24 @@ def rename_image(old_filename):
     new_filename = uuid.uuid4().hex + ext
     return new_filename
 
-def resize_image(image,filename,base_width):
-    filename,ext=os.path.splitext(filename)
-    img=Image.open(image)
-    if img.size[0] <= base_width:
-        return filename+ext
-    w_percent=(base_width / float(img.size[0]))
-    h_size=int((float(img.size[1])*float(w_percent)))
-    img=img.resize((base_width,h_size),PIL.Image.ANTIALIAS)
 
-    filename += current_app.config['PHOTO_SUFFIX'][base_width]+ext
-    img.save(os.path.join(current_app.config['UPLOAD_PATH'],filename),optimize=True,quality=85)
+def resize_image(image, filename, base_width):
+    filename, ext = os.path.splitext(filename)
+    img = Image.open(image)
+    if img.size[0] <= base_width:
+        return filename + ext
+    w_percent = (base_width / float(img.size[0]))
+    h_size = int((float(img.size[1]) * float(w_percent)))
+    img = img.resize((base_width, h_size), PIL.Image.ANTIALIAS)
+
+    filename += current_app.config['PHOTO_SUFFIX'][base_width] + ext
+    img.save(os.path.join(current_app.config['UPLOAD_PATH'], filename), optimize=True, quality=85)
     return filename
+
+
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"表单中%s处有错误：%s" % (
+                getattr(form, field).label.text, error
+            ))

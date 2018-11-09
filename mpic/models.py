@@ -18,6 +18,11 @@ roles_permissions = db.Table(
     db.Column('permission_id', db.Integer, db.ForeignKey('permission.id'))
 )
 
+#Photo和Tag多对多关系表
+tagging=db.Table('tagging',
+    db.Column('photo_id',db.Integer,db.ForeignKey('photo.id')),
+    db.Column('tag_id',db.Integer,db.ForeignKey('tag.id')),
+)
 
 class Permission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -117,6 +122,22 @@ class Photo(db.Model):
     filename_s = db.Column(db.String(64))
     filename_m = db.Column(db.String(64))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    flag=db.Column(db.Integer,default=0)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    tags=db.relationship('Tag',secondary=tagging,back_population='photos')
     author = db.relationship('User', back_populates='photos')
+
+@db.event.listens_for(Photo,'after_delete',named=True)
+def delete_photos(**kwargs):
+    target=kwargs['target']
+    for filename in [target.filename,target.filename_s,target.filename_m]:
+        path=os.path.join(current_app.config['UPLOAD_PATH'],filename)
+        if os.path.exists(path):
+            os.remove(path)
+
+class Tag(db.Model):
+    id=db.Column(db.Integer,primary_key=True)
+    name=db.Column(db.String(64),index=True,unique=True)
+
+    photos=db.relationship('Photo',secondary=tagging,back_populates='tags')
