@@ -8,8 +8,8 @@ from wtforms.validators import DataRequired, Optional, Length
 
 
 class DescriptionForm(FlaskForm):
-    description = TextAreaField('Description', validators=[Optional(), Length(0, 500)])
-    submit = SubmitField()
+    description = TextAreaField('描述', validators=[Optional(), Length(0, 500)])
+    submit = SubmitField('提交')
 
 
 class TagForm(FlaskForm):
@@ -19,4 +19,4 @@ class TagForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     body = TextAreaField('', validators=[DataRequired()])
-    submit = SubmitField()
+    submit = SubmitField('提交')

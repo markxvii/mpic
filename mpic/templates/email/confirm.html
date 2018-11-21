@@ -1,6 +1,0 @@
-<p>{{ user.username }}，您好！</p>
-<p>欢迎加入<b>Mpic</b>！</p>
-<p>请访问下面提供的地址来激活您的邮箱账号：<br>
-    <a href="{{ url_for('auth.confirm',token=token,_external=True) }}">{{ url_for('auth.confirm', token=token, _external=True) }}</a>
-</p>
-<small>请不要回复本邮件，本邮件由事务邮件提供商提供服务。</small>

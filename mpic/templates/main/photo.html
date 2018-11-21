@@ -15,7 +15,7 @@
                 </a>
             </div>
             <a data-toggle="modal" data-target="#share-modal" class="btn btn-primary btn-sm text-white">分享！</a>
-            {% if current_user == photo.author %}
+            {% if current_user == photo.author or current_user.can('MODERATE') %}
                 <a data-href="{{ url_for('.delete_photo',photo_id=photo.id) }}" data-toggle="modal"
                    data-target="#confirm-delete" class="btn btn-danger btn-sm text-white">删除</a>
             {% endif %}
@@ -30,13 +30,16 @@
             </p>
             {% include 'main/_comment.html' %}
         </div>
+        <div class="col-md-4">
+            {% include 'main/_photo_sidebar.html' %}
+        </div>
     </div>
     <!-- 分享按钮所属模态框 -->
     <div class="modal fade" id="share-modal" tabindex="-1" role="dialog" aria-labelledby="shareModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="shareModalLabel">链接</h5>
+                    <h5 class="modal-title" id="shareModalLabel">请直接复制下面的链接！</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

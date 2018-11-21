@@ -26,20 +26,20 @@ class RegisterForm(FlaskForm):
         DataRequired(), Length(8, 128), EqualTo('password2')
     ])
     password2 = PasswordField('确认密码', validators=[DataRequired()])
-    submit = SubmitField()
+    submit = SubmitField('注册')
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('此邮箱已被使用。')
 
-    def valdiate_username(self, field):
+    def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('此用户名已被使用。')
 
 
 class ForgetPasswordForm(FlaskForm):
     Email = StringField('Email', validators=[DataRequired(), Length(1, 254), Email()])
-    submit = SubmitField()
+    submit = SubmitField('提交')
 
 
 class ResetPasswordForm(FlaskForm):
@@ -48,4 +48,4 @@ class ResetPasswordForm(FlaskForm):
         DataRequired(), Length(8, 128), EqualTo('password2')
     ])
     password2 = PasswordField('确认密码', validators=[DataRequired()])
-    submit=SubmitField()
+    submit=SubmitField('提交')

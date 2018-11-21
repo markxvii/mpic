@@ -13,14 +13,15 @@ from mpic.blueprints.ajax import ajax_bp
 from mpic.blueprints.auth import auth_bp
 from mpic.blueprints.main import main_bp
 from mpic.blueprints.user import user_bp
-from mpic.extensions import bootstrap, db, login_manager, mail, dropzone, moment, whooshee, avatars, csrf
-from mpic.models import Role, User, Permission
+from mpic.extensions import bootstrap, db, migrate,login_manager, mail, dropzone, moment, whooshee, avatars, csrf
+from mpic.models import Role, User, Permission,Tag,Comment,Photo,Follow,Notification,Collect
 from mpic.settings import config
 
 
 def register_extensions(app):
     bootstrap.init_app(app)
     db.init_app(app)
+    migrate.init_app(app,db)
     login_manager.init_app(app)
     mail.init_app(app)
     dropzone.init_app(app)
@@ -39,7 +40,55 @@ def register_blueprints(app):
 
 
 def register_commands(app):
-    pass
+    @app.cli.command()
+    @click.option('--drop', is_flag=True, help='Create after drop.')
+    def initdb(drop):
+        """Initialize the database."""
+        if drop:
+            click.confirm('This operation will delete the database, do you want to continue?', abort=True)
+            db.drop_all()
+            click.echo('Drop tables.')
+        db.create_all()
+        click.echo('Initialized database.')
+
+    @app.cli.command()
+    def init():
+        """Initialize Albumy."""
+        click.echo('Initializing the database...')
+        db.create_all()
+
+        click.echo('Initializing the roles and permissions...')
+        Role.init_role()
+
+        click.echo('Done.')
+
+    @app.cli.command()
+    @click.option('--user', default=10, help='Quantity of users, default is 10.')
+    @click.option('--photo', default=30, help='Quantity of photos, default is 500.')
+    @click.option('--tag', default=20, help='Quantity of tags, default is 500.')
+    @click.option('--comment', default=100, help='Quantity of comments, default is 500.')
+    def forge(user, photo, tag, comment):
+        """Generate fake data."""
+
+        from mpic.fakes import fake_admin, fake_comment, fake_photo, fake_tag, fake_user
+
+        db.drop_all()
+        db.create_all()
+
+        click.echo('Initializing the roles and permissions...')
+        Role.init_role()
+        click.echo('Generating the administrator...')
+        fake_admin()
+        click.echo('Generating %d users...' % user)
+        fake_user(user)
+        click.echo('Generating %d tags...' % tag)
+        fake_tag(tag)
+        click.echo('Generating %d photos...' % photo)
+        fake_photo(photo)
+        click.echo('Generating %d comments...' % comment)
+        fake_comment(comment)
+        click.echo('Done.')
+
 
 
 def register_errorhandlers(app):
@@ -69,11 +118,20 @@ def register_errorhandlers(app):
 
 
 def register_shell_context(app):
-    pass
+    @app.shell_context_processor
+    def make_shell_context():
+        return dict(db=db, User=User, Photo=Photo, Tag=Tag, Comment=Comment,
+                    Follow=Follow,Collect=Collect,Notification=Notification)
 
 
 def register_template_context(app):
-    pass
+    @app.context_processor
+    def make_template_context():
+        if current_user.is_authenticated:
+            notification_count=Notification.query.with_parent(current_user).filter_by(is_read=False).count()
+        else:
+            notification_count=None
+        return dict(notification_count=notification_count)
 
 
 def create_app(config_name=None):
@@ -81,7 +139,6 @@ def create_app(config_name=None):
         config_name = os.getenv('FLASK_CONFIG', 'development')
 
     app = Flask('mpic')
-
     app.config.from_object(config[config_name])
 
     register_extensions(app)

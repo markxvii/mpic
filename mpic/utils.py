@@ -54,21 +54,6 @@ def validate_token(user, token, operation, new_password=None):
     return True
 
 
-def is_safe_url(target):
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url), target)
-    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
-
-
-def redirect_back(default='main.index', **kwargs):
-    for target in request.args.get('next'), request.referrer:
-        if not target:
-            continue
-        if is_safe_url(target):
-            return redirect(target)
-    return redirect(url_for(default, **kwargs))
-
-
 def rename_image(old_filename):
     ext = os.path.splitext(old_filename)[1]
     new_filename = uuid.uuid4().hex + ext
@@ -89,9 +74,26 @@ def resize_image(image, filename, base_width):
     return filename
 
 
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
+
+
+def redirect_back(default='main.index', **kwargs):
+    for target in request.args.get('next'), request.referrer:
+        if not target:
+            continue
+        if is_safe_url(target):
+            return redirect(target)
+    return redirect(url_for(default, **kwargs))
+
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
-            flash(u"表单中%s处有错误：%s" % (
-                getattr(form, field).label.text, error
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
             ))

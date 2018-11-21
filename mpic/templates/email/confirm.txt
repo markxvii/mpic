@@ -1,5 +1,0 @@
-{{user.username}}，您好！
-欢迎加入Mpic！
-请访问下面提供的地址来激活您的邮箱账号：
-{{ url_for('auth.confirm', token=token, _external=True) }}
-请不要回复本邮件，本邮件由事务邮件提供商提供服务。

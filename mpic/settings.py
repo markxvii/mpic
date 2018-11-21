@@ -31,7 +31,6 @@ class BaseConfig:
     MANAGE_TAG_PER_PAGE = 50
     MANAGE_COMMENT_PER_PAGE = 30
     SEARCH_RESULT_PER_PAGE = 20
-    MAIL_SUBJECT_PREFIX = '[Mpic]'
     UPLOAD_PATH = os.path.join(basedir, 'uploads')
     PHOTO_SIZE={
         'small':400,
@@ -54,15 +53,17 @@ class BaseConfig:
 
     MAIL_SERVER=os.getenv('MAIL_SERVER')
     MAIL_PORT=587
-    MAIL_USE_SSL=True
+    MAIL_USE_TLS=True
     MAIL_USERNAME=os.getenv('MAIL_USERNAME')
     MAIL_PASSWORD=os.getenv('MAIL_PASSWORD')
+    MAIL_SUBJECT_PREFIX = '[Mpic]'
     MAIL_DEFAULT_SENDER=('Mpic管理员',MAIL_USERNAME)
 
     DROPZONE_ALLOWED_FILE_TYPE='image'
     DROPZONE_MAX_FILE_SIZE=3
     DROPZONE_MAX_FILES=30
     DROPZONE_ENABLE_CSRF=True
+    DROPZONE_DEFAULT_MESSAGE='请点击选择文件或拖拽文件至此处'
 
     WHOOSHEE_MIN_STRING_LEN=1
 
